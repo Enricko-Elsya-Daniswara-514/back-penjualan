@@ -1,6 +1,8 @@
 <?php
 
 use App\Helpers\Routes\RouteHelper;
+use App\Http\Controllers\Http\Controllers\ApiController;
+use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +21,9 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+
+Route::post('/login', [LoginController::class, 'authenticate']);
+
 Route::prefix('pegawai')->group(function() {
     RouteHelper::includeRouteFiles(__DIR__ . '/pegawai');
 });
@@ -26,3 +31,5 @@ Route::prefix('pegawai')->group(function() {
 Route::prefix('produk')->group(function() {
     RouteHelper::includeRouteFiles(__DIR__ . '/produk');
 });
+
+
