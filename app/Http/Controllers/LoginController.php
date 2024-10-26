@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
 {
@@ -15,7 +17,7 @@ class LoginController extends Controller
         //$credentials = $request->only('email', 'password');
 
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required',
         ]);
 
@@ -24,22 +26,20 @@ class LoginController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $temp = User::where('email', '=', $request->email)->first();
-        if (!$temp) {
-            return new JsonResponse(['message' => 'Periksa Kembali Username dan password anda'], 409);
-        }
-        if ($temp) {
-            $pass = Hash::check($request->password, $temp->password);
-            if (!$pass) {
-                return new JsonResponse(['message' => 'Periksa Kembali Username dan password anda'], 409);
-            }
-        }
-        if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+          //request credentials
+        $credentials = $request->only('username', 'password');
+
+        //auth failed
+        if (!$token = JWTAuth::attempt($credentials, ['exp' => Carbon::now()->addDays(7)->timestamp])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau Password Anda salah'
+            ], 401);
         }
 
         $user = User::find(auth()->user()->id);
         return response()->json([
+            'success' => true,
             'token' => $token,
             'user' => $user
         ]);
