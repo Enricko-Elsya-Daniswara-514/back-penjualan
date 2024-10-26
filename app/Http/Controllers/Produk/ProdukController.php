@@ -45,4 +45,5 @@ class ProdukController extends Controller
         );
         return new JsonResponse(['message' => 'Data Berhasil Disimpan...!!!','result' =>$simpan],200);
     }
+
 }
